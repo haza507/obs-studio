@@ -608,10 +608,11 @@ static int try_connect(struct rtmp_stream *stream)
 	    dstr_cmp(&stream->bind_ip, "default") == 0) {
 		memset(&stream->rtmp.m_bindIP, 0, sizeof(stream->rtmp.m_bindIP));
 	} else {
-		netif_str_to_addr(&stream->rtmp.m_bindIP.addr,
+		bool success = netif_str_to_addr(&stream->rtmp.m_bindIP.addr,
 				&stream->rtmp.m_bindIP.addrLen,
 				stream->bind_ip.array);
-		info("Binding to IP: %s", stream->bind_ip.array);
+		if (success)
+			info("Binding to IP");
 	}
 
 	RTMP_AddStream(&stream->rtmp, stream->key.array);
