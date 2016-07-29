@@ -136,10 +136,13 @@ bool netif_str_to_addr(struct sockaddr_storage *out, int *addr_len,
 
 	ipv6 = (strchr(addr, ':') != NULL);
 	out->ss_family = ipv6 ? AF_INET6 : AF_INET;
+	*addr_len = sizeof(*out);
 
 #ifdef _WIN32
 	ret = WSAStringToAddressA((LPSTR)addr, out->ss_family, NULL,
 			(LPSOCKADDR)out, addr_len);
+	if (ret == SOCKET_ERROR)
+		warn("Could not parse address, error code: %d", GetLastError());
 	return ret != SOCKET_ERROR;
 #else
 	struct sockaddr_in *sin = (struct sockaddr_in *)out;
