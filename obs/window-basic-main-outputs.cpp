@@ -269,16 +269,8 @@ void SimpleOutput::LoadRecordingPreset()
 
 SimpleOutput::SimpleOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 {
-	const char *bindIP = config_get_string(main->Config(), "Output",
-			"BindIP");
-
-	obs_data_t *settings = obs_data_create();
-	obs_data_set_string(settings, "bind_ip", bindIP);
-
 	streamOutput = obs_output_create("rtmp_output", "simple_stream",
-			settings, nullptr);
-	obs_data_release(settings);
-
+			nullptr, nullptr);
 	if (!streamOutput)
 		throw "Failed to create stream output (simple output)";
 	obs_output_release(streamOutput);
@@ -548,6 +540,14 @@ bool SimpleOutput::StartStreaming(obs_service_t *service)
 			"DelaySec");
 	bool preserveDelay = config_get_bool(main->Config(), "Output",
 			"DelayPreserve");
+	const char *bindIP = config_get_string(main->Config(), "Output",
+			"BindIP");
+
+	obs_data_t *settings = obs_data_create();
+	obs_data_set_string(settings, "bind_ip", bindIP);
+	obs_output_update(streamOutput, settings);
+	obs_data_release(settings);
+
 	if (!reconnect)
 		maxRetries = 0;
 
@@ -734,11 +734,6 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 			"Encoder");
 	const char *recordEncoder = config_get_string(main->Config(), "AdvOut",
 			"RecEncoder");
-	const char *bindIP = config_get_string(main->Config(), "Output",
-			"BindIP");
-
-	obs_data_t *rtmpSettings = obs_data_create();
-	obs_data_set_string(rtmpSettings, "bind_ip", bindIP);
 
 	ffmpegOutput = astrcmpi(recType, "FFmpeg") == 0;
 	ffmpegRecording = ffmpegOutput &&
@@ -749,9 +744,7 @@ AdvancedOutput::AdvancedOutput(OBSBasic *main_) : BasicOutputHandler(main_)
 	OBSData recordEncSettings = GetDataFromJsonFile("recordEncoder.json");
 
 	streamOutput = obs_output_create("rtmp_output", "adv_stream",
-			rtmpSettings, nullptr);
-	obs_data_release(rtmpSettings);
-
+			nullptr, nullptr);
 	if (!streamOutput)
 		throw "Failed to create stream output (advanced output)";
 	obs_output_release(streamOutput);
@@ -1094,6 +1087,14 @@ bool AdvancedOutput::StartStreaming(obs_service_t *service)
 			"DelaySec");
 	bool preserveDelay = config_get_bool(main->Config(), "Output",
 			"DelayPreserve");
+	const char *bindIP = config_get_string(main->Config(), "Output",
+			"BindIP");
+
+	obs_data_t *settings = obs_data_create();
+	obs_data_set_string(settings, "bind_ip", bindIP);
+	obs_output_update(streamOutput, settings);
+	obs_data_release(settings);
+
 	if (!reconnect)
 		maxRetries = 0;
 
